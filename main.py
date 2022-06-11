@@ -16,7 +16,7 @@ app.config['SECRET_KEY'] = '8BYkEfBA6O6donzWlSihBXox7C0sKR6b'
 ckeditor = CKEditor(app)
 Bootstrap(app)
 
-##CONNECT TO DB
+# CONNECT TO DB
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///blog.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
@@ -33,7 +33,8 @@ gravatar = Gravatar(app,
                     use_ssl=False,
                     base_url=None)
 
-##CONFIGURE TABLES
+
+# CONFIGURE TABLES
 
 class User(UserMixin, db.Model):
     __tablename__ = "users"
@@ -46,7 +47,6 @@ class User(UserMixin, db.Model):
     # The "author" refers to the author property in the BlogPost class.
     posts = relationship("BlogPost", back_populates="author")
     comments = relationship("Comment", back_populates="comment_author")
-
 
 
 class BlogPost(db.Model):
@@ -66,6 +66,7 @@ class BlogPost(db.Model):
 
     comments = relationship("Comment", back_populates="parent_post")
 
+
 class Comment(db.Model):
     __tablename__ = "comments"
     id = db.Column(db.Integer, primary_key=True)
@@ -78,10 +79,10 @@ class Comment(db.Model):
 
     text = db.Column(db.Text, nullable=False)
 
-db.create_all()
 
 login_manager = LoginManager()
 login_manager.init_app(app)
+
 
 def admin_only(f):
     @wraps(f)
@@ -89,11 +90,14 @@ def admin_only(f):
         if current_user.id != 1:
             return abort(404)
         return f(*args, **kwargs)
+
     return decorated_function
+
 
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
+
 
 @app.route('/')
 def get_all_posts():
@@ -112,7 +116,6 @@ def register():
         db.session.commit()
         login_user(user)
         return redirect(url_for('get_all_posts'))
-
 
     return render_template("register.html", form=form)
 
@@ -135,8 +138,6 @@ def login():
         else:
             login_user(user)
             return redirect(url_for('get_all_posts'))
-
-
 
     return render_template("login.html", form=form)
 
@@ -228,7 +229,6 @@ def delete_post(post_id):
     db.session.delete(post_to_delete)
     db.session.commit()
     return redirect(url_for('get_all_posts'))
-
 
 
 if __name__ == "__main__":
